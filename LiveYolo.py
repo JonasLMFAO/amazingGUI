@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 class LiveYolo():
     def __init__(self):
         self.default_model_path = 'exp22/weights/best.pt'
-        self.device = '0'
+        self.device = ''
         self.im_size = 1280
         self.conf_thresh = 0.25
         self.iou_thresh = 0.1
