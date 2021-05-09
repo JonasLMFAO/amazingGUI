@@ -6,11 +6,7 @@ import cv2
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
 import numpy as np
 import torch
-from random import randint
-from time import sleep
-from threading import Thread, Lock
 from LiveYolo import LiveYolo
-from time import time
 
 name_list = ["null", "Coca Cola", "Lacalut", "Persil", "Paper Clips", "Colgate"]
 live_model = LiveYolo()
