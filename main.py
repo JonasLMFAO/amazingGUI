@@ -6,6 +6,7 @@ import cv2
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
 import numpy as np
 import torch
+from time import time
 from LiveYolo import LiveYolo
 
 name_list = ["null", "Coca Cola", "Lacalut", "Persil", "Paper Clips", "Colgate"]
@@ -60,6 +61,7 @@ class App(QWidget):
         #self.item_list.setLineWrapMode(QTextEdit.NoWrap)
         self.clear_button = QPushButton(self)
         self.clear_button.setText("Clear")
+        self.clear_button.clicked.connect(lambda: self.item_list.setPlainText(""))
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.item_list, 1)
@@ -109,6 +111,7 @@ class App(QWidget):
         convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
         p = convert_to_Qt_format.scaled(self.disply_width, self.display_height, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
+
 
 if __name__=="__main__":
     app = QApplication(sys.argv)
