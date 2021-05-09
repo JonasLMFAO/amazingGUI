@@ -10,6 +10,7 @@ from random import randint
 from time import sleep
 from threading import Thread, Lock
 from LiveYolo import LiveYolo
+from time import time
 
 name_list = ["null", "Coca Cola", "Lacalut", "Persil", "Paper Clips", "Colgate"]
 live_model = LiveYolo()
@@ -29,10 +30,13 @@ class VideoThread(QThread):
         while self._run_flag:
             ret, cv_img = cap.read()
             if ret:
+                start_time = time()
                 with torch.no_grad():
                     cv_img, indexes, probs = live_model.run_on_single_frame(cv_img)
+                    
                     indexes = indexes.numpy()
                     probs = probs.numpy()
+                print(time()-start_time)
                 self.change_pixmap_signal.emit(cv_img, indexes, probs)
         # shut down capture system
         cap.release()

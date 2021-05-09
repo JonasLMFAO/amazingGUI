@@ -65,7 +65,7 @@ class LiveYolo():
             # Apply NMS
         pred = non_max_suppression(pred, self.conf_thresh, self.iou_thresh, classes=None, agnostic=False)
         t2 = time_synchronized()
-
+        print(t2-t1)
 
 
             # Process detections
@@ -81,8 +81,7 @@ class LiveYolo():
                     c = int(cls)
                     label = f'{names[c]} {conf:.2f}'
                     p = plot_one_box(xyxy, frame, label=label, color=colors(c, True), line_thickness=2)
-                    plt.imshow(frame/255)
-                    plt.savefig("test.png")
+                    
 
         #print('pred', pred)
 
