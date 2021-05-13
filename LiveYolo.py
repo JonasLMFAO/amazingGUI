@@ -18,11 +18,11 @@ import matplotlib.pyplot as plt
 
 class LiveYolo():
     def __init__(self):
-        self.default_model_path = 'exp22/weights/best.pt'
+        self.default_model_path = 'm6/weights/best.pt'
         self.device = ''
         self.im_size = 1280
         self.conf_thresh = 0.25
-        self.iou_thresh = 0.1
+        self.iou_thresh = 0.2
 
 
     def load(self, model_path=None):
@@ -32,13 +32,13 @@ class LiveYolo():
 
         if model_path == None:
             model_path = self.default_model_path
-        self.model   = attempt_load(model_path, map_location=self.device)
+        self.model   = attempt_load(model_path, map_location=self.device);self.names = self.model.module.names if hasattr(self.model, 'module') else self.model.names
         self.stride = int(self.model.stride.max())  # model stride
 
     def run_on_single_frame(self, frame):
         frame = np.ascontiguousarray(np.asarray(frame)[:,:,::-1])
         imgsz = check_img_size(self.im_size, s=self.stride)  # check img_size
-        names = self.model.module.names if hasattr(self.model, 'module') else self.model.names  # get class names
+          # get class names
         if self.half:
             self.model.half()  # to FP16
 
@@ -49,7 +49,7 @@ class LiveYolo():
 
         # Run inference
         if self.device.type != 'cpu':
-            self.model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(self.model.parameters())))  # run once
+            self.model(torch.zeros(1, 3, imgsz, imgsz).to(self.device).type_as(next(self.model.parameters())))  # run once
         t0 = time.time()
 
         img = torch.from_numpy(img).to(self.device)
@@ -59,8 +59,7 @@ class LiveYolo():
             img = img.unsqueeze(0)
             # Inference
         t1 = time_synchronized()
-
-        pred = self.model(img, augment='store_true')[0]
+        pred = self.model(img)[0]#add augment=store_true to replicate original
 
 
             # Apply NMS
@@ -80,7 +79,7 @@ class LiveYolo():
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
                 for *xyxy, conf, cls in reversed(det):
                     c = int(cls)
-                    label = f'{names[c]} {conf:.2f}'
+                    label = f'{self.names[c]} {conf:.2f}'
                     p = plot_one_box(xyxy, frame, label=label, color=colors(c, True), line_thickness=2)
 
 
