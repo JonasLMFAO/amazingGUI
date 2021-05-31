@@ -9,7 +9,7 @@ import torch
 from time import time
 from LiveYolo import LiveYolo
 
-name_list = ["null", "Coca Cola", "Lacalut", "Persil", "Paper Clips", "Colgate"]
+name_list = ["Coca Cola", "Lacalut", "Persil", "Paper Clips", "Colgate"]
 live_model = LiveYolo()
 live_model.load()
 
