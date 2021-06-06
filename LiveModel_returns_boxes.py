@@ -21,7 +21,7 @@ class LiveYolo():
         self.default_model_path = 'exp22/weights/best.pt'
         self.device = ''
         self.im_size = 1280
-        self.conf_thresh = 0.001
+        self.conf_thresh = 0.25
         self.iou_thresh = 0.3
 
 
@@ -87,7 +87,7 @@ class LiveYolo():
         coords = pred[0][:-3]
         classes = pred[0][:,-1]
         probs = pred[0][:,-2]
-        return coords, classes, probs
+        return pred #coords, classes, probs
 
 
 if __name__ == '__main__':

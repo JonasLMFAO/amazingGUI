@@ -15,7 +15,7 @@ live_model.load()
 
 
 class VideoThread(QThread):
-    change_pixmap_signal = pyqtSignal(np.ndarray, np.ndarray, np.ndarray)
+    change_pixmap_signal = pyqtSignal(np.ndarray,torch.Tensor,torch.Tensor)
 
     def __init__(self):
         super().__init__()
@@ -30,8 +30,8 @@ class VideoThread(QThread):
                 start_time = time()
                 with torch.no_grad():
                     cv_img, indexes, probs = live_model.run_on_single_frame(cv_img)
-                    indexes = np.asarray(indexes.cpu())
-                    probs = np.asarray(probs.cpu())
+                    #indexes = np.asarray(indexes.cpu())
+                    #probs = np.asarray(probs.cpu())
                 print("time taken to get response from model:", time()-start_time)
                 self.change_pixmap_signal.emit(cv_img, indexes, probs)
         # shut down capture system
@@ -90,7 +90,7 @@ class App(QWidget):
         self.seen_items = []
         self.item_list.setText("The list is empty")
 
-    @pyqtSlot(np.ndarray, np.ndarray, np.ndarray)
+    @pyqtSlot(np.ndarray,torch.Tensor,torch.Tensor)
     def update_image(self, cv_img, indexes, probs):
         """Updates the image_label with a new opencv image"""
         start_time = time()
