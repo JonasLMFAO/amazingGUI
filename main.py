@@ -6,7 +6,6 @@ import cv2
 from PyQt5.QtCore import *
 import numpy as np
 import torch
-from time import time
 from LiveModel_returns_boxes import LiveYolo
 from utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
     scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box
@@ -54,13 +53,11 @@ class VideoThread(QThread):
         while self._run_flag:
             ret, cv_img = cap.read()
             if ret:
-                start_time = time()
                 with torch.no_grad():
                     if self.pred is not None:
                         drawBoxes(cv_img, self.pred)
                         indexes = np.asarray(self.pred[0][:,-1])
                         probs = np.asarray(self.pred[0][:,-2])
-                        print(time()-start_time)
                         self.change_pixmap_signal.emit(cv_img, indexes, probs)
             sleep(0.08)
         cap.release()
