@@ -75,8 +75,8 @@ class App(QWidget):
 
         # Widgets
         self.image_label = QLabel(self)
-        self.image_label.setMinimumWidth(500)
-        self.image_label.setMinimumHeight(500)
+        self.image_label.setMinimumWidth(600)
+        self.image_label.setMinimumHeight(600)
         #self.image_label.setSizePolicy(QSizePolicy.Expanding,
         #             QSizePolicy.Expanding)
         self.image_label.installEventFilter(self)
@@ -90,7 +90,7 @@ class App(QWidget):
 
         self.clearList()
         self.clear_button = QPushButton(self)
-        self.clear_button.setMinimumHeight(40)
+        self.clear_button.setMinimumHeight(100)
         self.clear_button.setText("Clear")
         self.clear_button.setFont(MAIN_FONT)
         self.clear_button.clicked.connect(self.clearList)
