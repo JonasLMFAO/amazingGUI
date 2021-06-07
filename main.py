@@ -103,7 +103,6 @@ class App(QWidget):
         v_layout.addWidget(self.item_list)
         v_layout.addWidget(self.clear_button)
         hbox = QHBoxLayout()
-        hbox.addStretch(1)
         hbox.addWidget(self.image_label)
         hbox.addWidget(v_widget)
         self.setLayout(hbox)
