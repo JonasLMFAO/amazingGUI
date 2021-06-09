@@ -5,76 +5,17 @@ import sys
 import cv2
 from PyQt5.QtCore import *
 import numpy as np
-import torch
-from LiveModel_returns_boxes import LiveYolo
-from utils.plots import colors, plot_one_box
-from threading import Thread
-from time import sleep
 
-# model init
-name_list = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
-             'Haus Halt', 'Purina', 'Nesquick', 'Dilmah']
-live_model = LiveYolo()
-live_model.load()
+
+from VideoThread import VideoThread
+
 
 # consts
-VIDEO = "nesquick.mp4"
+VIDEO_PATH = "nesquick.mp4"
 MAIN_FONT = "Helvetica [Cronyx]"
 FONT_SIZE = 18
-ROI = ((10, 440), (1260, 1340))  # ((440, 10), (1340, 1260))
-
-
-def drawBoxes(frame, pred):
-    for i, det in enumerate(pred):  # detections per image
-        if len(det):
-            # Rescale boxes from img_size to im0 size
-            #det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
-            for *xyxy, conf, cls in reversed(det):
-                c = int(cls)
-                label = f'{name_list[c]} {conf:.2f}'
-                # adjust box coords based on the ROI
-                adjusted_xyxy = [xyxy[0] + ROI[0][0], xyxy[1] +
-                                 ROI[0][1], xyxy[2] + ROI[0][0], xyxy[3] + ROI[0][1]]
-                p = plot_one_box(adjusted_xyxy, frame, label=label,
-                                 color=colors(c, True), line_thickness=3)
-
-
-class VideoThread(QThread):
-    change_pixmap_signal = pyqtSignal(np.ndarray, np.ndarray, np.ndarray)
-
-    def __init__(self):
-        super().__init__()
-        self._run_flag = True
-
-    def updatePredictionLoop(self):
-        while True:
-            if self.cv_img is not None:
-                cropped = self.cv_img[ROI[0][1]:ROI[1][1], ROI[0][0]:ROI[1][0]]
-                self.pred = live_model.run_on_single_frame(cropped)
-
-    def run(self):
-        cap = cv2.VideoCapture(VIDEO)
-        self.cv_img = None
-        self.pred = None
-        thread = Thread(target=self.updatePredictionLoop)
-        thread.start()
-        while self._run_flag:
-            ret, self.cv_img = cap.read()
-            if ret:
-                with torch.no_grad():
-                    if self.pred is not None:
-                        drawBoxes(self.cv_img, self.pred)
-                        indexes = np.asarray(self.pred[0][:, -1])
-                        probs = np.asarray(self.pred[0][:, -2])
-                        self.change_pixmap_signal.emit(
-                            self.cv_img, indexes, probs)
-            sleep(0.08)
-        cap.release()
-
-    def stop(self):
-        """Sets run flag to False and waits for thread to finish"""
-        self._run_flag = False
-        self.wait()
+NAME_LIST = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
+             'Haus Halt', 'Purina', 'Nesquick', 'Dilmah']
 
 
 class App(QWidget):
@@ -127,7 +68,7 @@ class App(QWidget):
         self.cv_img = None
 
         # create the video capture thread
-        self.thread = VideoThread()
+        self.thread = VideoThread(VIDEO_PATH, NAME_LIST)
         # connect its signal to the update_image slot
         self.thread.change_pixmap_signal.connect(self.update_image)
         # start the thread
@@ -165,17 +106,11 @@ class App(QWidget):
         # update item list
         for i in indexes:
             i = int(i)
-            if name_list[i] not in self.seen_items:
-                self.seen_items.append(name_list[i])
+            if NAME_LIST[i] not in self.seen_items:
+                self.seen_items.append(NAME_LIST[i])
         self.item_list.setText("\n".join(self.seen_items))
 
-    def drawROI(self, cv_img):
-        color = (0, 255, 0)
-        thickness = 6
-        cv_img = cv2.rectangle(cv_img, ROI[0], ROI[1], color, thickness)
-
     def convert_cv_qt(self, cv_img):
-        self.drawROI(cv_img)
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_RGB2BGR)
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
