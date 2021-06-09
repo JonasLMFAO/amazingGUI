@@ -1,4 +1,3 @@
-from os import pread
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -8,8 +7,6 @@ from PyQt5.QtCore import *
 import numpy as np
 import torch
 from LiveModel_returns_boxes import LiveYolo
-from utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
-    scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box
 from utils.plots import colors, plot_one_box
 from threading import Thread
 from time import sleep
@@ -22,7 +19,8 @@ live_model.load()
 
 # consts
 VIDEO = "nesquick.mp4"
-MAIN_FONT = QFont("Helvetica [Cronyx]", 16)
+MAIN_FONT = "Helvetica [Cronyx]"
+FONT_SIZE = 18
 ROI = ((10, 440), (1260, 1340))  # ((440, 10), (1340, 1260))
 
 
@@ -48,27 +46,28 @@ class VideoThread(QThread):
         super().__init__()
         self._run_flag = True
 
+    def updatePredictionLoop(self):
+        while True:
+            if self.cv_img is not None:
+                cropped = self.cv_img[ROI[0][1]:ROI[1][1], ROI[0][0]:ROI[1][0]]
+                self.pred = live_model.run_on_single_frame(cropped)
+
     def run(self):
         cap = cv2.VideoCapture(VIDEO)
-        cv_img = None
+        self.cv_img = None
         self.pred = None
-
-        def getPred():
-            while True:
-                if cv_img is not None:
-                    cropped = cv_img[ROI[0][1]:ROI[1][1], ROI[0][0]:ROI[1][0]]
-                    self.pred = live_model.run_on_single_frame(cropped)
-        thread = Thread(target=getPred)
+        thread = Thread(target=self.updatePredictionLoop)
         thread.start()
         while self._run_flag:
-            ret, cv_img = cap.read()
+            ret, self.cv_img = cap.read()
             if ret:
                 with torch.no_grad():
                     if self.pred is not None:
-                        drawBoxes(cv_img, self.pred)
+                        drawBoxes(self.cv_img, self.pred)
                         indexes = np.asarray(self.pred[0][:, -1])
                         probs = np.asarray(self.pred[0][:, -2])
-                        self.change_pixmap_signal.emit(cv_img, indexes, probs)
+                        self.change_pixmap_signal.emit(
+                            self.cv_img, indexes, probs)
             sleep(0.08)
         cap.release()
 
@@ -101,13 +100,13 @@ class App(QWidget):
         self.item_list.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.item_list.setMinimumWidth(300)
-        self.item_list.setFont(MAIN_FONT)
+        self.item_list.setFont(QFont(MAIN_FONT, FONT_SIZE))
 
         self.clearList()
         self.clear_button = QPushButton(self)
-        self.clear_button.setMinimumHeight(100)
+        self.clear_button.setMinimumHeight(120)
         self.clear_button.setText("Clear")
-        self.clear_button.setFont(MAIN_FONT)
+        self.clear_button.setFont(QFont(MAIN_FONT, FONT_SIZE+4))
         self.clear_button.clicked.connect(self.clearList)
 
         # Layouts
@@ -146,6 +145,7 @@ class App(QWidget):
     def getPos(self, event):
         x = event.pos().x()
         y = event.pos().y()
+        print("x,y:", x, y)
 
     def closeEvent(self, event):
         self.thread.stop()
