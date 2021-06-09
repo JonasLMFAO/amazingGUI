@@ -21,6 +21,7 @@ live_model = LiveYolo()
 live_model.load()
 
 # consts
+VIDEO = "nesquick.mp4"
 MAIN_FONT = QFont("Helvetica [Cronyx]", 16)
 ROI = ((10, 440), (1260, 1340))  # ((440, 10), (1340, 1260))
 
@@ -33,11 +34,11 @@ def drawBoxes(frame, pred):
             for *xyxy, conf, cls in reversed(det):
                 c = int(cls)
                 label = f'{name_list[c]} {conf:.2f}'
-                xyxy = [xyxy[0] + ROI[0][0], xyxy[1] +
-                        ROI[0][1], xyxy[2] + ROI[0][0], xyxy[3] + ROI[0][1]]
-                print(xyxy)
-                p = plot_one_box(xyxy, frame, label=label,
-                                 color=colors(c, True), line_thickness=2)
+                # adjust box coords based on the ROI
+                adjusted_xyxy = [xyxy[0] + ROI[0][0], xyxy[1] +
+                                 ROI[0][1], xyxy[2] + ROI[0][0], xyxy[3] + ROI[0][1]]
+                p = plot_one_box(adjusted_xyxy, frame, label=label,
+                                 color=colors(c, True), line_thickness=3)
 
 
 class VideoThread(QThread):
@@ -48,7 +49,7 @@ class VideoThread(QThread):
         self._run_flag = True
 
     def run(self):
-        cap = cv2.VideoCapture("new.mp4")
+        cap = cv2.VideoCapture(VIDEO)
         cv_img = None
         self.pred = None
 
@@ -56,7 +57,6 @@ class VideoThread(QThread):
             while True:
                 if cv_img is not None:
                     cropped = cv_img[ROI[0][1]:ROI[1][1], ROI[0][0]:ROI[1][0]]
-                    cv2.imwrite("WOW.jpg", cropped)
                     self.pred = live_model.run_on_single_frame(cropped)
         thread = Thread(target=getPred)
         thread.start()
@@ -171,7 +171,7 @@ class App(QWidget):
 
     def drawROI(self, cv_img):
         color = (0, 255, 0)
-        thickness = 5
+        thickness = 6
         cv_img = cv2.rectangle(cv_img, ROI[0], ROI[1], color, thickness)
 
     def convert_cv_qt(self, cv_img):
