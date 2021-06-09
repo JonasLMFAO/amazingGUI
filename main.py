@@ -1,3 +1,4 @@
+from os import pread
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -14,7 +15,8 @@ from threading import Thread
 from time import sleep
 
 # model init
-name_list = [ 'Tartan', 'Vileda', 'Lacalut', 'Ecodenta', 'Haus Halt', 'Purina', 'Nesquick', 'Dilmah']
+name_list = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
+             'Haus Halt', 'Purina', 'Nesquick', 'Dilmah']
 live_model = LiveYolo()
 live_model.load()
 
@@ -31,6 +33,9 @@ def drawBoxes(frame, pred):
             for *xyxy, conf, cls in reversed(det):
                 c = int(cls)
                 label = f'{name_list[c]} {conf:.2f}'
+                xyxy = [xyxy[0] + ROI[0][0], xyxy[1] +
+                        ROI[0][1], xyxy[2] + ROI[0][0], xyxy[3] + ROI[0][1]]
+                print(xyxy)
                 p = plot_one_box(xyxy, frame, label=label,
                                  color=colors(c, True), line_thickness=2)
 
@@ -50,8 +55,9 @@ class VideoThread(QThread):
         def getPred():
             while True:
                 if cv_img is not None:
-                    self.pred = live_model.run_on_single_frame(
-                        cv_img[ROI[0][1]:ROI[1][1], ROI[0][0]:ROI[1][0]])
+                    cropped = cv_img[ROI[0][1]:ROI[1][1], ROI[0][0]:ROI[1][0]]
+                    cv2.imwrite("WOW.jpg", cropped)
+                    self.pred = live_model.run_on_single_frame(cropped)
         thread = Thread(target=getPred)
         thread.start()
         while self._run_flag:
