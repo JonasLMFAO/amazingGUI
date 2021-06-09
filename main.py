@@ -20,6 +20,7 @@ live_model.load()
 
 # consts
 MAIN_FONT = QFont("Helvetica [Cronyx]", 16)
+ROI = ((10, 440), (1260, 1340))  # ((440, 10), (1340, 1260))
 
 
 def drawBoxes(frame, pred):
@@ -30,7 +31,8 @@ def drawBoxes(frame, pred):
             for *xyxy, conf, cls in reversed(det):
                 c = int(cls)
                 label = f'{name_list[c]} {conf:.2f}'
-                p = plot_one_box(xyxy, frame, label=label, color=colors(c, True), line_thickness=2)
+                p = plot_one_box(xyxy, frame, label=label,
+                                 color=colors(c, True), line_thickness=2)
 
 
 class VideoThread(QThread):
@@ -41,13 +43,15 @@ class VideoThread(QThread):
         self._run_flag = True
 
     def run(self):
-        cap = cv2.VideoCapture("rotated.mp4")
+        cap = cv2.VideoCapture("new.mp4")
         cv_img = None
         self.pred = None
+
         def getPred():
             while True:
                 if cv_img is not None:
-                    self.pred = live_model.run_on_single_frame(cv_img)
+                    self.pred = live_model.run_on_single_frame(
+                        cv_img[ROI[0][1]:ROI[1][1], ROI[0][0]:ROI[1][0]])
         thread = Thread(target=getPred)
         thread.start()
         while self._run_flag:
@@ -56,8 +60,8 @@ class VideoThread(QThread):
                 with torch.no_grad():
                     if self.pred is not None:
                         drawBoxes(cv_img, self.pred)
-                        indexes = np.asarray(self.pred[0][:,-1])
-                        probs = np.asarray(self.pred[0][:,-2])
+                        indexes = np.asarray(self.pred[0][:, -1])
+                        probs = np.asarray(self.pred[0][:, -2])
                         self.change_pixmap_signal.emit(cv_img, indexes, probs)
             sleep(0.08)
         cap.release()
@@ -77,15 +81,19 @@ class App(QWidget):
         self.image_label = QLabel(self)
         self.image_label.setMinimumWidth(600)
         self.image_label.setMinimumHeight(600)
-        #self.image_label.setSizePolicy(QSizePolicy.Expanding,
-        #             QSizePolicy.Expanding)
         self.image_label.installEventFilter(self)
-        self.image_label.setStyleSheet("QLabel { background-color : white; padding: 5px; }");
+        self.image_label.setStyleSheet(
+            "QLabel { background-color : white; padding: 5px; }")
+        self.image_label.setSizePolicy(
+            QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         self.item_list = QLabel(self)
-        self.item_list.setStyleSheet("QLabel { background-color : white; padding: 5px 10px; }");
+        self.item_list.setStyleSheet(
+            "QLabel { background-color : white; padding: 5px 10px; }")
         self.item_list.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.item_list.setMinimumWidth(200)
+        self.item_list.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.item_list.setMinimumWidth(300)
         self.item_list.setFont(MAIN_FONT)
 
         self.clearList()
@@ -98,13 +106,16 @@ class App(QWidget):
         # Layouts
         v_layout = QVBoxLayout()
         v_widget = QWidget()
-        v_widget.setLayout(v_layout);
+        v_widget.setLayout(v_layout)
         v_widget.setMaximumWidth(400)
         v_layout.addWidget(self.item_list)
         v_layout.addWidget(self.clear_button)
         hbox = QHBoxLayout()
+        hbox.addStretch(1)
+        hbox.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         hbox.addWidget(self.image_label)
-        hbox.addWidget(v_widget)
+        hbox.addWidget(v_widget, 1)
+        hbox.addStretch(1)
         self.setLayout(hbox)
 
         self.cv_img = None
@@ -118,13 +129,12 @@ class App(QWidget):
 
     def eventFilter(self, widget, event):
         if (event.type() == QEvent.Resize and
-            widget is self.image_label):
+                widget is self.image_label):
             self.image_label.setPixmap(QtGui.QPixmap(self.image_label.pixmap()).scaled(
                 self.image_label.width(), self.image_label.height(),
                 Qt.KeepAspectRatio))
             return True
         return QMainWindow.eventFilter(self, widget, event)
-
 
     def closeEvent(self, event):
         self.thread.stop()
@@ -139,8 +149,8 @@ class App(QWidget):
         # update pixmap
         qt_img = self.convert_cv_qt(cv_img)
         self.image_label.setPixmap(qt_img.scaled(
-                self.image_label.width(), self.image_label.height(),
-                Qt.KeepAspectRatio))
+            self.image_label.width(), self.image_label.height(),
+            Qt.KeepAspectRatio))
         # update item list
         for i in indexes:
             i = int(i)
@@ -148,16 +158,23 @@ class App(QWidget):
                 self.seen_items.append(name_list[i])
         self.item_list.setText("\n".join(self.seen_items))
 
+    def drawROI(self, cv_img):
+        color = (0, 255, 0)
+        thickness = 5
+        cv_img = cv2.rectangle(cv_img, ROI[0], ROI[1], color, thickness)
+
     def convert_cv_qt(self, cv_img):
+        self.drawROI(cv_img)
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_RGB2BGR)
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
-        converted_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        converted_to_Qt_format = QtGui.QImage(
+            rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(converted_to_Qt_format)
         return pixmap
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     a = App()
     a.show()
