@@ -84,8 +84,9 @@ class App(QWidget):
         self.image_label.installEventFilter(self)
         self.image_label.setStyleSheet(
             "QLabel { background-color : white; padding: 5px; }")
-        self.image_label.setSizePolicy(
-            QSizePolicy.Minimum, QSizePolicy.Minimum)
+        # self.image_label.setSizePolicy(
+        #     QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.image_label.mousePressEvent = self.getPos
 
         self.item_list = QLabel(self)
         self.item_list.setStyleSheet(
@@ -110,13 +111,13 @@ class App(QWidget):
         v_widget.setMaximumWidth(400)
         v_layout.addWidget(self.item_list)
         v_layout.addWidget(self.clear_button)
-        hbox = QHBoxLayout()
-        hbox.addStretch(1)
-        hbox.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        hbox.addWidget(self.image_label)
-        hbox.addWidget(v_widget, 1)
-        hbox.addStretch(1)
-        self.setLayout(hbox)
+        h_layout = QHBoxLayout()
+        h_layout.addStretch(1)
+        h_layout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        h_layout.addWidget(self.image_label)
+        h_layout.addWidget(v_widget, 1)
+        h_layout.addStretch(1)
+        self.setLayout(h_layout)
 
         self.cv_img = None
 
@@ -135,6 +136,10 @@ class App(QWidget):
                 Qt.KeepAspectRatio))
             return True
         return QMainWindow.eventFilter(self, widget, event)
+
+    def getPos(self, event):
+        x = event.pos().x()
+        y = event.pos().y()
 
     def closeEvent(self, event):
         self.thread.stop()

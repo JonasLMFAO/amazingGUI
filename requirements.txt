@@ -3,18 +3,15 @@
 # GUI/utils/flask_rest_api/restapi.py: 9
 Flask == 1.1.2
 
-# GUI/LiveModel.py: 13
-# GUI/LiveYolo.py: 10
-# GUI/LiveYoloWithBoxes.py: 10
+# GUI/LiveModel_returns_boxes.py: 10
 # GUI/models/common.py: 12
 # GUI/utils/datasets.py: 19
 # GUI/utils/flask_rest_api/restapi.py: 8
 # GUI/utils/plots.py: 18
-Pillow == 8.1.0
+Pillow >=8.2.0
 
-# GUI/main.py: 6
-# GUI/old_qt backup.py: 6
-# GUI/qt.py: 6
+# GUI/debugging.py: 6
+# GUI/main.py: 1,2,3,6
 PyQt5 == 5.15.4
 
 # GUI/models/yolo.py: 78
@@ -26,24 +23,16 @@ PyQt5 == 5.15.4
 # GUI/utils/wandb_logging/wandb_utils.py: 6
 PyYAML == 5.4.1
 
-# GUI/LiveModel.py: 8
-ipython == 7.20.0
-
-# GUI/LiveModel.py: 11,12
-# GUI/LiveYolo.py: 17
-# GUI/LiveYoloWithBoxes.py: 17
+# GUI/LiveModel_returns_boxes.py: 17
 # GUI/utils/metrics.py: 5
 # GUI/utils/plots.py: 11,12
 matplotlib == 3.3.3
 
-# GUI/LiveModel.py: 4
-# GUI/LiveYolo.py: 8,9
-# GUI/LiveYoloWithBoxes.py: 8,9
+# GUI/LiveModel_returns_boxes.py: 8,9
+# GUI/debugging.py: 7
 # GUI/main.py: 7
 # GUI/models/common.py: 7
 # GUI/models/experimental.py: 3
-# GUI/old_qt backup.py: 7
-# GUI/qt.py: 7
 # GUI/utils/autoanchor.py: 3
 # GUI/utils/datasets.py: 16
 # GUI/utils/general.py: 17
@@ -51,11 +40,9 @@ matplotlib == 3.3.3
 # GUI/utils/plots.py: 13
 numpy == 1.19.4
 
-# GUI/LiveYolo.py: 5
-# GUI/LiveYoloWithBoxes.py: 5
+# GUI/LiveModel_returns_boxes.py: 5
+# GUI/debugging.py: 5
 # GUI/main.py: 5
-# GUI/old_qt backup.py: 5
-# GUI/qt.py: 5
 # GUI/utils/datasets.py: 15
 # GUI/utils/general.py: 16
 # GUI/utils/plots.py: 10
@@ -74,7 +61,6 @@ protobuf == 3.15.3
 # GUI/utils/google_utils.py: 9
 requests == 2.25.1
 
-# GUI/LiveModel.py: 3
 # GUI/utils/autoanchor.py: 78
 # GUI/utils/plots.py: 56
 scipy == 1.6.1
@@ -86,18 +72,12 @@ seaborn == 0.11.1
 # GUI/utils/general.py: 112
 setuptools == 49.2.1
 
-# GUI/LiveModel.py: 5,9
-six == 1.15.0
-
-# GUI/LiveModel.py: 15
-tensorflow == 2.4.1
-
 # GUI/models/yolo.py: 20
 # GUI/utils/torch_utils.py: 216
 thop == 0.0.31.post2005241907
 
-# GUI/LiveYolo.py: 6,7
-# GUI/LiveYoloWithBoxes.py: 6,7
+# GUI/LiveModel_returns_boxes.py: 6,7
+# GUI/debugging.py: 8
 # GUI/main.py: 8
 # GUI/models/common.py: 10,11,13
 # GUI/models/experimental.py: 4,5
