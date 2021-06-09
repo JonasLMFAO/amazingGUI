@@ -14,7 +14,7 @@ from threading import Thread
 from time import sleep
 
 # model init
-name_list = ["Coca Cola", "Lacalut", "Persil", "Paper Clips", "Colgate"]
+name_list = [ 'Tartan', 'Vileda', 'Lacalut', 'Ecodenta', 'Haus Halt', 'Purina', 'Nesquick', 'Dilmah']
 live_model = LiveYolo()
 live_model.load()
 

@@ -18,9 +18,10 @@ import matplotlib.pyplot as plt
 
 class LiveYolo():
     def __init__(self):
-        self.default_model_path = 'exp22/weights/best.pt'
-        self.device = ''
-        self.im_size = 1280
+        folder_path = "5l_640_10" #IRASYTI MODELIO PAVADINIMA CIA
+        self.default_model_path = f'live_models/{folder_path}/weights/best.pt'
+        self.device = '1'
+        self.im_size = int(folder_path.split("_")[1])
         self.conf_thresh = 0.25
         self.iou_thresh = 0.3
 
