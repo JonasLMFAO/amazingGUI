@@ -45,6 +45,9 @@ numpy == 1.19.4
 # GUI/utils/plots.py: 10
 opencv_python == 4.5.1.48
 
+# GUI/utils/datasets.py: 280
+pafy == 0.5.5
+
 # GUI/models/common.py: 8
 # GUI/utils/general.py: 18
 # GUI/utils/plots.py: 14
