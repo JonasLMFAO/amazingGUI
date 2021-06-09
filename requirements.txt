@@ -8,10 +8,9 @@ Flask == 1.1.2
 # GUI/utils/datasets.py: 19
 # GUI/utils/flask_rest_api/restapi.py: 8
 # GUI/utils/plots.py: 18
-Pillow >=8.2.0
+Pillow == 8.2.0
 
-# GUI/debugging.py: 6
-# GUI/main.py: 1,2,3,6
+# GUI/main.py: 2,3,4,7
 PyQt5 == 5.15.4
 
 # GUI/models/yolo.py: 78
@@ -29,8 +28,7 @@ PyYAML == 5.4.1
 matplotlib == 3.3.3
 
 # GUI/LiveModel_returns_boxes.py: 8,9
-# GUI/debugging.py: 7
-# GUI/main.py: 7
+# GUI/main.py: 8
 # GUI/models/common.py: 7
 # GUI/models/experimental.py: 3
 # GUI/utils/autoanchor.py: 3
@@ -41,8 +39,7 @@ matplotlib == 3.3.3
 numpy == 1.19.4
 
 # GUI/LiveModel_returns_boxes.py: 5
-# GUI/debugging.py: 5
-# GUI/main.py: 5
+# GUI/main.py: 6
 # GUI/utils/datasets.py: 15
 # GUI/utils/general.py: 16
 # GUI/utils/plots.py: 10
@@ -77,8 +74,7 @@ setuptools == 49.2.1
 thop == 0.0.31.post2005241907
 
 # GUI/LiveModel_returns_boxes.py: 6,7
-# GUI/debugging.py: 8
-# GUI/main.py: 8
+# GUI/main.py: 9
 # GUI/models/common.py: 10,11,13
 # GUI/models/experimental.py: 4,5
 # GUI/models/export.py: 14,15,16
