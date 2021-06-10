@@ -14,7 +14,7 @@ live_model = LiveYolo()
 live_model.load()
 
 
-ROI = ((10, 440), (1260, 1340))  # ((440, 10), (1340, 1260))
+ROI = ((10, 440), (1260, 1140))  # ((440, 10), (1340, 1260))
 
 
 class VideoThread(QThread):
@@ -51,8 +51,18 @@ class VideoThread(QThread):
         thickness = 6
         cv_img = cv2.rectangle(cv_img, ROI[0], ROI[1], color, thickness)
 
+    def rotate_image(image, angle):
+        image_center = tuple(np.array(image.shape[1::-1]) / 2)
+        rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+        result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
+        return result
+
     def run(self):
         cap = cv2.VideoCapture(self.VIDEO_PATH)
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+        cap.set(cv2.cv.CV_CAP_PROP_FPS,15)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 2048)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1536)
         self.cv_img = None
         self.pred = None
         thread = Thread(target=self.updatePredictionLoop)

@@ -5,8 +5,6 @@ import sys
 import cv2
 from PyQt5.QtCore import *
 import numpy as np
-
-
 from VideoThread import VideoThread
 
 
@@ -24,15 +22,22 @@ class App(QWidget):
         self.setWindowTitle("LiveYolo")
 
         # Widgets
-        self.image_label = QLabel(self)
+        self.image_label = QWidget(self)
         self.image_label.setMinimumWidth(600)
         self.image_label.setMinimumHeight(600)
         self.image_label.installEventFilter(self)
         self.image_label.setStyleSheet(
             "QLabel { background-color : white; padding: 5px; }")
-        # self.image_label.setSizePolicy(
-        #     QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.image_label.mousePressEvent = self.getPos
+
+        self.image_sublayout = QVBoxLayout()
+        self.image_label.setLayout(self.image_sublayout)
+        self.image_sublabel = QLabel(self)
+        self.image_sublabel.setSizePolicy(
+            QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.image_sublayout.addWidget(self.image_sublabel)
+        self.image_sublabel.setStyleSheet(
+            "QLabel { background-color : red; padding: 5px; }")
+        self.image_sublabel.mousePressEvent = self.getPos
 
         self.item_list = QLabel(self)
         self.item_list.setStyleSheet(
@@ -69,17 +74,18 @@ class App(QWidget):
 
         # create the video capture thread
         self.thread = VideoThread(VIDEO_PATH, NAME_LIST)
-        # connect its signal to the update_image slot
         self.thread.change_pixmap_signal.connect(self.update_image)
-        # start the thread
         self.thread.start()
 
     def eventFilter(self, widget, event):
         if (event.type() == QEvent.Resize and
                 widget is self.image_label):
-            self.image_label.setPixmap(QtGui.QPixmap(self.image_label.pixmap()).scaled(
+            scaled_pixmap = QtGui.QPixmap(self.image_sublabel.pixmap()).scaled(
                 self.image_label.width(), self.image_label.height(),
-                Qt.KeepAspectRatio))
+                Qt.KeepAspectRatio)
+            self.image_sublabel.setPixmap(scaled_pixmap)
+            self.image_sublabel.setFixedSize(
+                scaled_pixmap.rect().width(), scaled_pixmap.rect().height())
             return True
         return QMainWindow.eventFilter(self, widget, event)
 
@@ -100,7 +106,7 @@ class App(QWidget):
     def update_image(self, cv_img, indexes, probs):
         # update pixmap
         qt_img = self.convert_cv_qt(cv_img)
-        self.image_label.setPixmap(qt_img.scaled(
+        self.image_sublabel.setPixmap(qt_img.scaled(
             self.image_label.width(), self.image_label.height(),
             Qt.KeepAspectRatio))
         # update item list
