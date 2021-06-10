@@ -58,11 +58,13 @@ class App(QWidget):
         self.res_x1.setValidator(QIntValidator())
         self.res_x1.setMaxLength(4)
         self.res_x1.setPlaceholderText("x1")
+        self.res_x1.setText(str(ROI[0][0]))
         self.res_input_layout.addWidget(self.res_x1)
         self.res_y1 = QLineEdit()
         self.res_y1.setValidator(QIntValidator())
         self.res_y1.setMaxLength(4)
         self.res_y1.setPlaceholderText("y1")
+        self.res_y1.setText(str(ROI[0][1]))
         self.res_input_layout.addWidget(self.res_y1)
 
     def __init__(self):
