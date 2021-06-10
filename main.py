@@ -20,8 +20,10 @@ class App(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("LiveYolo")
+        self.cv_img = None
 
         # Widgets
+        # on-the-left
         self.image_parent = QWidget(self)
         self.image_parent.setMinimumWidth(600)
         self.image_parent.setMinimumHeight(600)
@@ -30,7 +32,6 @@ class App(QWidget):
             QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.image_parent.setStyleSheet(
             "QLabel { background-color : black; padding: 5px; }")
-
         self.image_layout = QVBoxLayout()
         self.image_parent.setLayout(self.image_layout)
         self.image_label = QLabel(self)
@@ -39,7 +40,7 @@ class App(QWidget):
         self.image_label.setStyleSheet(
             "QLabel { background-color : red;}")
         self.image_label.mousePressEvent = self.getPos
-
+        # on-the-right
         self.item_list = QLabel(self)
         self.item_list.setStyleSheet(
             "QLabel { background-color : white; padding: 5px 10px; }")
@@ -48,7 +49,6 @@ class App(QWidget):
             QSizePolicy.Fixed, QSizePolicy.Expanding)
         self.item_list.setMinimumWidth(300)
         self.item_list.setFont(QFont(MAIN_FONT, FONT_SIZE))
-
         self.clearList()
         self.clear_button = QPushButton(self)
         self.clear_button.setMinimumHeight(120)
@@ -57,21 +57,19 @@ class App(QWidget):
         self.clear_button.clicked.connect(self.clearList)
 
         # Layouts
-        v_layout = QVBoxLayout()
-        v_widget = QWidget()
-        v_widget.setLayout(v_layout)
-        v_widget.setMaximumWidth(400)
-        v_layout.addWidget(self.item_list)
-        v_layout.addWidget(self.clear_button)
-        h_layout = QHBoxLayout()
-        h_layout.addStretch(1)
-        h_layout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        h_layout.addWidget(self.image_parent)
-        h_layout.addWidget(v_widget, 1)
-        h_layout.addStretch(1)
-        self.setLayout(h_layout)
-
-        self.cv_img = None
+        right_vbox = QVBoxLayout()
+        right_layout_parent = QWidget()
+        right_layout_parent.setLayout(right_vbox)
+        right_layout_parent.setMaximumWidth(400)
+        right_vbox.addWidget(self.item_list)
+        right_vbox.addWidget(self.clear_button)
+        main_hbox = QHBoxLayout()
+        main_hbox.addStretch(1)
+        main_hbox.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        main_hbox.addWidget(self.image_parent)
+        main_hbox.addWidget(right_layout_parent, 1)
+        main_hbox.addStretch(1)
+        self.setLayout(main_hbox)
 
         # create the video capture thread
         self.thread = VideoThread(VIDEO_PATH, NAME_LIST)
