@@ -54,13 +54,13 @@ class VideoThread(QThread):
     def rotate_image(image, angle):
         image_center = tuple(np.array(image.shape[1::-1]) / 2)
         rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
-        result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
+        result = cv2.warpAffine(
+            image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
         return result
 
     def run(self):
         cap = cv2.VideoCapture(self.VIDEO_PATH)
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-        cap.set(cv2.cv.CV_CAP_PROP_FPS,15)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 2048)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1536)
         self.cv_img = None
