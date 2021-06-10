@@ -20,13 +20,7 @@ ROI = [(10, 440), (1260, 1140)]
 
 
 class App(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("LiveYolo")
-        self.cv_img = None
-
-        # Widgets
-        # on-the-left
+    def createImageWidget(self):
         self.image_parent = QWidget(self)
         self.image_parent.setMinimumWidth(600)
         self.image_parent.setMinimumHeight(600)
@@ -43,7 +37,8 @@ class App(QWidget):
         self.image_label.setStyleSheet(
             "QLabel { background-color : red;}")
         self.image_label.mousePressEvent = self.getPos
-        # on-the-right
+
+    def createItemListAndInputWidgets(self):
         self.item_list = QLabel(self)
         self.item_list.setStyleSheet(
             "QLabel { background-color : white; padding: 5px 10px; }")
@@ -59,9 +54,20 @@ class App(QWidget):
         self.clear_button.setFont(QFont(MAIN_FONT, FONT_SIZE+4))
         self.clear_button.clicked.connect(self.clearList)
 
-        # Layouts
-        right_vbox = QVBoxLayout()
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("LiveYolo")
+        self.cv_img = None
+
+        # on-the-left
+        self.createImageWidget()
+
+        # on-the-right
+        self.createItemListAndInputWidgets()
+
+        # put everything that's left into layouts
         right_layout_parent = QWidget()
+        right_vbox = QVBoxLayout()
         right_layout_parent.setLayout(right_vbox)
         right_layout_parent.setMaximumWidth(400)
         right_vbox.addWidget(self.item_list)
