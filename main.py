@@ -26,25 +26,27 @@ class App(QWidget):
         self.image_label.setMinimumWidth(600)
         self.image_label.setMinimumHeight(600)
         self.image_label.installEventFilter(self)
+        self.image_label.setSizePolicy(
+            QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.image_label.setStyleSheet(
-            "QLabel { background-color : white; padding: 5px; }")
+            "QLabel { background-color : black; padding: 5px; }")
 
         self.image_sublayout = QVBoxLayout()
         self.image_label.setLayout(self.image_sublayout)
         self.image_sublabel = QLabel(self)
         self.image_sublabel.setSizePolicy(
-            QSizePolicy.Ignored, QSizePolicy.Ignored)
+            QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.image_sublayout.addWidget(self.image_sublabel)
         self.image_sublabel.setStyleSheet(
-            "QLabel { background-color : red; padding: 5px; }")
+            "QLabel { background-color : red;}")
         self.image_sublabel.mousePressEvent = self.getPos
 
         self.item_list = QLabel(self)
         self.item_list.setStyleSheet(
             "QLabel { background-color : white; padding: 5px 10px; }")
-        self.item_list.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.item_list.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # aligns text
         self.item_list.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding)
+            QSizePolicy.Fixed, QSizePolicy.Expanding)
         self.item_list.setMinimumWidth(300)
         self.item_list.setFont(QFont(MAIN_FONT, FONT_SIZE))
 
@@ -106,9 +108,12 @@ class App(QWidget):
     def update_image(self, cv_img, indexes, probs):
         # update pixmap
         qt_img = self.convert_cv_qt(cv_img)
-        self.image_sublabel.setPixmap(qt_img.scaled(
+        scaled_pixmap = QtGui.QPixmap(qt_img).scaled(
             self.image_label.width(), self.image_label.height(),
-            Qt.KeepAspectRatio))
+            Qt.KeepAspectRatio)
+        self.image_sublabel.setPixmap(scaled_pixmap)
+        self.image_sublabel.setFixedSize(
+            scaled_pixmap.rect().width(), scaled_pixmap.rect().height())
         # update item list
         for i in indexes:
             i = int(i)
