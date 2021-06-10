@@ -14,16 +14,22 @@ import cv2
 live_model = LiveYolo()
 live_model.load()
 
+ROI_OFFSET = (1250, 700)
+
 
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray, np.ndarray, np.ndarray)
 
-    def __init__(self, video_path, name_list, ROI):
+    def __init__(self, video_path, name_list, ROI_x0y0):
         super().__init__()
         self._run_flag = True
         self.VIDEO_PATH = video_path
         self.NAME_LIST = name_list
-        self.ROI = ROI
+        self.updateROI(ROI_x0y0)
+
+    def updateROI(self, new_ROI):
+        self.ROI = ((new_ROI[0], new_ROI[1]),
+                    (new_ROI[0] + ROI_OFFSET[0], new_ROI[1]+ROI_OFFSET[1]))
 
     def drawBoxes(self, frame, pred):
         for i, det in enumerate(pred):  # detections per image
@@ -50,7 +56,7 @@ class VideoThread(QThread):
         color = (0, 255, 0)
         thickness = 6
         cv_img = cv2.rectangle(
-            cv_img, self.ROI[0], self.ROI[1], color, thickness)
+            cv_img, tuple(self.ROI[0]), tuple(self.ROI[1]), color, thickness)
 
     def rotate_image(image, angle):
         image_center = tuple(np.array(image.shape[1::-1]) / 2)
