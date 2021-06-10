@@ -14,6 +14,7 @@ MAIN_FONT = "Helvetica [Cronyx]"
 FONT_SIZE = 18
 NAME_LIST = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
              'Haus Halt', 'Purina', 'Nesquick', 'Dilmah']
+ROI = [(10, 440), (1260, 1140)]
 
 
 class App(QWidget):
@@ -92,7 +93,7 @@ class App(QWidget):
         self.setLayout(main_hbox)
 
         # create the video capture thread
-        self.thread = VideoThread(VIDEO_PATH, NAME_LIST)
+        self.thread = VideoThread(VIDEO_PATH, NAME_LIST, ROI)
         self.thread.change_pixmap_signal.connect(self.update_image)
         self.thread.start()
 
