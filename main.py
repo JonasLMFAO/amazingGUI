@@ -22,24 +22,23 @@ class App(QWidget):
         self.setWindowTitle("LiveYolo")
 
         # Widgets
-        self.image_label = QWidget(self)
-        self.image_label.setMinimumWidth(600)
-        self.image_label.setMinimumHeight(600)
-        self.image_label.installEventFilter(self)
-        self.image_label.setSizePolicy(
+        self.image_parent = QWidget(self)
+        self.image_parent.setMinimumWidth(600)
+        self.image_parent.setMinimumHeight(600)
+        self.image_parent.installEventFilter(self)
+        self.image_parent.setSizePolicy(
             QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.image_label.setStyleSheet(
+        self.image_parent.setStyleSheet(
             "QLabel { background-color : black; padding: 5px; }")
 
-        self.image_sublayout = QVBoxLayout()
-        self.image_label.setLayout(self.image_sublayout)
-        self.image_sublabel = QLabel(self)
-        self.image_sublabel.setSizePolicy(
-            QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.image_sublayout.addWidget(self.image_sublabel)
-        self.image_sublabel.setStyleSheet(
+        self.image_layout = QVBoxLayout()
+        self.image_parent.setLayout(self.image_layout)
+        self.image_label = QLabel(self)
+        self.image_layout.addWidget(
+            self.image_label)
+        self.image_label.setStyleSheet(
             "QLabel { background-color : red;}")
-        self.image_sublabel.mousePressEvent = self.getPos
+        self.image_label.mousePressEvent = self.getPos
 
         self.item_list = QLabel(self)
         self.item_list.setStyleSheet(
@@ -67,7 +66,7 @@ class App(QWidget):
         h_layout = QHBoxLayout()
         h_layout.addStretch(1)
         h_layout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        h_layout.addWidget(self.image_label)
+        h_layout.addWidget(self.image_parent)
         h_layout.addWidget(v_widget, 1)
         h_layout.addStretch(1)
         self.setLayout(h_layout)
@@ -81,12 +80,12 @@ class App(QWidget):
 
     def eventFilter(self, widget, event):
         if (event.type() == QEvent.Resize and
-                widget is self.image_label):
-            scaled_pixmap = QtGui.QPixmap(self.image_sublabel.pixmap()).scaled(
-                self.image_label.width(), self.image_label.height(),
+                widget is self.image_parent):
+            scaled_pixmap = QtGui.QPixmap(self.image_label.pixmap()).scaled(
+                self.image_parent.width(), self.image_parent.height(),
                 Qt.KeepAspectRatio)
-            self.image_sublabel.setPixmap(scaled_pixmap)
-            self.image_sublabel.setFixedSize(
+            self.image_label.setPixmap(scaled_pixmap)
+            self.image_label.setFixedSize(
                 scaled_pixmap.rect().width(), scaled_pixmap.rect().height())
             return True
         return QMainWindow.eventFilter(self, widget, event)
@@ -109,10 +108,10 @@ class App(QWidget):
         # update pixmap
         qt_img = self.convert_cv_qt(cv_img)
         scaled_pixmap = QtGui.QPixmap(qt_img).scaled(
-            self.image_label.width(), self.image_label.height(),
+            self.image_parent.width(), self.image_parent.height(),
             Qt.KeepAspectRatio)
-        self.image_sublabel.setPixmap(scaled_pixmap)
-        self.image_sublabel.setFixedSize(
+        self.image_label.setPixmap(scaled_pixmap)
+        self.image_label.setFixedSize(
             scaled_pixmap.rect().width(), scaled_pixmap.rect().height())
         # update item list
         for i in indexes:
