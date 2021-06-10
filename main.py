@@ -18,7 +18,7 @@ NAME_LIST = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
 
 class App(QWidget):
     def createImageWidget(self):
-        self.image_parent = QWidget(self)
+        self.image_parent = QWidget()
         self.image_parent.setMinimumWidth(600)
         self.image_parent.setMinimumHeight(600)
         self.image_parent.installEventFilter(self)
@@ -28,7 +28,7 @@ class App(QWidget):
             "QLabel { background-color : black; padding: 5px; }")
         self.image_layout = QVBoxLayout()
         self.image_parent.setLayout(self.image_layout)
-        self.image_label = QLabel(self)
+        self.image_label = QLabel()
         self.image_layout.addWidget(
             self.image_label)
         self.image_label.setStyleSheet(
@@ -36,7 +36,7 @@ class App(QWidget):
         self.image_label.mousePressEvent = self.getPos
 
     def createItemListAndInputWidgets(self):
-        self.item_list = QLabel(self)
+        self.item_list = QLabel()
         self.item_list.setStyleSheet(
             "QLabel { background-color : white; padding: 5px 10px; }")
         self.item_list.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # aligns text
@@ -45,11 +45,34 @@ class App(QWidget):
         self.item_list.setMinimumWidth(300)
         self.item_list.setFont(QFont(MAIN_FONT, FONT_SIZE))
         self.clearList()
-        self.clear_button = QPushButton(self)
+        self.clear_button = QPushButton()
         self.clear_button.setMinimumHeight(120)
         self.clear_button.setText("Clear")
         self.clear_button.setFont(QFont(MAIN_FONT, FONT_SIZE+4))
         self.clear_button.clicked.connect(self.clearList)
+
+        self.res_input_widget = QWidget()
+        self.res_input_layout = QGridLayout(self.res_input_widget)
+        self.res_x1 = QLineEdit()
+        self.res_x1.setValidator(QIntValidator())
+        self.res_x1.setMaxLength(4)
+        self.res_x1.setPlaceholderText("x1")
+        self.res_input_layout.addWidget(self.res_x1, 0, 0)
+        self.res_y1 = QLineEdit()
+        self.res_y1.setValidator(QIntValidator())
+        self.res_y1.setMaxLength(4)
+        self.res_y1.setPlaceholderText("y1")
+        self.res_input_layout.addWidget(self.res_y1, 0, 1)
+        self.res_x2 = QLineEdit()
+        self.res_x2.setValidator(QIntValidator())
+        self.res_x2.setMaxLength(4)
+        self.res_x2.setPlaceholderText("x2")
+        self.res_input_layout.addWidget(self.res_x2, 1, 0)
+        self.res_y2 = QLineEdit()
+        self.res_y2.setValidator(QIntValidator())
+        self.res_y2.setMaxLength(4)
+        self.res_y2.setPlaceholderText("y2")
+        self.res_input_layout.addWidget(self.res_y2, 1, 1)
 
     def __init__(self):
         super().__init__()
@@ -68,6 +91,7 @@ class App(QWidget):
         right_layout_parent.setLayout(right_vbox)
         right_layout_parent.setMaximumWidth(400)
         right_vbox.addWidget(self.item_list)
+        right_vbox.addWidget(self.res_input_widget)
         right_vbox.addWidget(self.clear_button)
         main_hbox = QHBoxLayout()
         main_hbox.addStretch(1)
@@ -107,7 +131,7 @@ class App(QWidget):
         self.seen_items = []
         self.item_list.setText("The list is empty")
 
-    @pyqtSlot(np.ndarray, np.ndarray, np.ndarray)
+    @ pyqtSlot(np.ndarray, np.ndarray, np.ndarray)
     def update_image(self, cv_img, indexes, probs):
         # update pixmap
         qt_img = self.convert_cv_qt(cv_img)
