@@ -14,17 +14,15 @@ live_model = LiveYolo()
 live_model.load()
 
 
-ROI = ((10, 440), (1260, 1140))  # ((440, 10), (1340, 1260))
-
-
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray, np.ndarray, np.ndarray)
 
-    def __init__(self, video_path, name_list):
+    def __init__(self, video_path, name_list, ROI):
         super().__init__()
         self._run_flag = True
         self.VIDEO_PATH = video_path
         self.NAME_LIST = name_list
+        self.ROI = ROI
 
     def drawBoxes(self, frame, pred):
         for i, det in enumerate(pred):  # detections per image
@@ -35,21 +33,23 @@ class VideoThread(QThread):
                     c = int(cls)
                     label = f'{self.NAME_LIST[c]} {conf:.2f}'
                     # adjust box coords based on the ROI
-                    adjusted_xyxy = [xyxy[0] + ROI[0][0], xyxy[1] +
-                                     ROI[0][1], xyxy[2] + ROI[0][0], xyxy[3] + ROI[0][1]]
+                    adjusted_xyxy = [xyxy[0] + self.ROI[0][0], xyxy[1] +
+                                     self.ROI[0][1], xyxy[2] + self.ROI[0][0], xyxy[3] + self.ROI[0][1]]
                     p = plot_one_box(adjusted_xyxy, frame, label=label,
                                      color=colors(c, True), line_thickness=3)
 
     def updatePredictionLoop(self):
         while True:
             if self.cv_img is not None:
-                cropped = self.cv_img[ROI[0][1]:ROI[1][1], ROI[0][0]:ROI[1][0]]
+                cropped = self.cv_img[self.ROI[0][1]:self.ROI[1]
+                                      [1], self.ROI[0][0]:self.ROI[1][0]]
                 self.pred = live_model.run_on_single_frame(cropped)
 
     def drawROI(self, cv_img):
         color = (0, 255, 0)
         thickness = 6
-        cv_img = cv2.rectangle(cv_img, ROI[0], ROI[1], color, thickness)
+        cv_img = cv2.rectangle(
+            cv_img, self.ROI[0], self.ROI[1], color, thickness)
 
     def rotate_image(image, angle):
         image_center = tuple(np.array(image.shape[1::-1]) / 2)
