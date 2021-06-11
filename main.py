@@ -74,6 +74,15 @@ class App(QWidget):
         self.ROI_y1.setText(str(DEFAULT_ROI[1]))
         self.ROI_y1.textEdited.connect(self.changeROI)
         self.ROI_input_layout.addWidget(self.ROI_y1)
+        # angle controls
+        self.angle_input_widget = QWidget()
+        self.angle_input_layout = QHBoxLayout(self.angle_input_widget)
+        self.angle_input_label = QLabel("Angle:")
+        self.angle_input_layout.addWidget(self.angle_input_label)
+        self.angle_input = QLineEdit()
+        self.angle_input.setValidator(QIntValidator())
+        self.angle_input.setMaxLength(4)
+        self.angle_input_layout.addWidget(self.angle_input)
 
     def changeROI(self):
         if self.ROI_x1.text() and self.ROI_x1.text():  # if both fields have values set
@@ -84,13 +93,10 @@ class App(QWidget):
         super().__init__()
         self.setWindowTitle("LiveYolo")
         self.cv_img = None
-
         # on-the-left
         self.createImageWidget()
-
         # on-the-right
         self.createItemListAndInputWidgets()
-
         # put everything that's left into layouts
         right_layout_parent = QWidget()
         right_vbox = QVBoxLayout()
@@ -98,6 +104,7 @@ class App(QWidget):
         right_layout_parent.setMaximumWidth(400)
         right_vbox.addWidget(self.item_list)
         right_vbox.addWidget(self.ROI_input_widget)
+        right_vbox.addWidget(self.angle_input_widget)
         right_vbox.addWidget(self.clear_button)
         main_hbox = QHBoxLayout()
         main_hbox.addStretch(1)
@@ -106,7 +113,6 @@ class App(QWidget):
         main_hbox.addWidget(right_layout_parent, 1)
         main_hbox.addStretch(1)
         self.setLayout(main_hbox)
-
         # create the video capture thread
         self.video_thread = VideoThread(VIDEO_PATH, NAME_LIST, DEFAULT_ROI)
         self.video_thread.change_pixmap_signal.connect(self.update_image)
