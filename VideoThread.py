@@ -20,12 +20,12 @@ ROI_OFFSET = (1250, 700)
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray, np.ndarray, np.ndarray)
 
-    def __init__(self, video_path, name_list, ROI_x0y0):
+    def __init__(self, VIDEO_PATH, NAME_LIST, DEFAULT_ROI):
         super().__init__()
         self._run_flag = True
-        self.VIDEO_PATH = video_path
-        self.NAME_LIST = name_list
-        self.updateROI(ROI_x0y0)
+        self.VIDEO_PATH = VIDEO_PATH
+        self.NAME_LIST = NAME_LIST
+        self.updateROI(DEFAULT_ROI)
 
     def updateROI(self, new_ROI):
         self.ROI = ((new_ROI[0], new_ROI[1]),

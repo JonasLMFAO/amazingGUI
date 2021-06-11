@@ -1,3 +1,4 @@
+from typing import NewType
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -14,7 +15,7 @@ MAIN_FONT = "Helvetica [Cronyx]"
 FONT_SIZE = 18
 NAME_LIST = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
              'Haus Halt', 'Purina', 'Nesquick', 'Dilmah']
-ROI_x0y0 = [10, 440]
+DEFAULT_ROI = [10, 440]
 
 
 class App(QWidget):
@@ -58,14 +59,21 @@ class App(QWidget):
         self.res_x1.setValidator(QIntValidator())
         self.res_x1.setMaxLength(4)
         self.res_x1.setPlaceholderText("x1")
-        self.res_x1.setText(str(ROI_x0y0[0]))
+        self.res_x1.setText(str(DEFAULT_ROI[0]))
+        self.res_x1.textEdited.connect(self.changeROI)
         self.res_input_layout.addWidget(self.res_x1)
         self.res_y1 = QLineEdit()
         self.res_y1.setValidator(QIntValidator())
         self.res_y1.setMaxLength(4)
         self.res_y1.setPlaceholderText("y1")
-        self.res_y1.setText(str(ROI_x0y0[1]))
+        self.res_y1.setText(str(DEFAULT_ROI[1]))
+        self.res_y1.textEdited.connect(self.changeROI)
         self.res_input_layout.addWidget(self.res_y1)
+
+    def changeROI(self):
+        if self.res_x1.text() and self.res_x1.text():  # if both fields have values set
+            new_ROI = [int(self.res_x1.text()), int(self.res_y1.text())]
+            self.video_thread.updateROI(new_ROI)
 
     def __init__(self):
         super().__init__()
@@ -95,9 +103,9 @@ class App(QWidget):
         self.setLayout(main_hbox)
 
         # create the video capture thread
-        self.thread = VideoThread(VIDEO_PATH, NAME_LIST, ROI_x0y0)
-        self.thread.change_pixmap_signal.connect(self.update_image)
-        self.thread.start()
+        self.video_thread = VideoThread(VIDEO_PATH, NAME_LIST, DEFAULT_ROI)
+        self.video_thread.change_pixmap_signal.connect(self.update_image)
+        self.video_thread.start()
 
     def eventFilter(self, widget, event):
         if (event.type() == QEvent.Resize and
