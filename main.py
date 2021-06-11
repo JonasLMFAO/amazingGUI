@@ -38,6 +38,7 @@ class App(QWidget):
         self.image_label.mousePressEvent = self.getPos
 
     def createItemListAndInputWidgets(self):
+        # item list
         self.item_list = QLabel()
         self.item_list.setStyleSheet(
             "QLabel { background-color : white; padding: 5px 10px; }")
@@ -47,14 +48,18 @@ class App(QWidget):
         self.item_list.setMinimumWidth(300)
         self.item_list.setFont(QFont(MAIN_FONT, FONT_SIZE))
         self.clearList()
+        # clear btn
         self.clear_button = QPushButton()
         self.clear_button.setMinimumHeight(120)
         self.clear_button.setText("Clear")
         self.clear_button.setFont(QFont(MAIN_FONT, FONT_SIZE+4))
         self.clear_button.clicked.connect(self.clearList)
-
+        # roi controls
         self.res_input_widget = QWidget()
         self.res_input_layout = QHBoxLayout(self.res_input_widget)
+        self.res_input_label = QLabel()
+        self.res_input_label.setText("ROI:")
+        self.res_input_layout.addWidget(self.res_input_label)
         self.res_x1 = QLineEdit()
         self.res_x1.setValidator(QIntValidator())
         self.res_x1.setMaxLength(4)
@@ -161,6 +166,7 @@ class App(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setFont(QFont(MAIN_FONT, FONT_SIZE-2))
     a = App()
     a.show()
     sys.exit(app.exec_())
