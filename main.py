@@ -8,14 +8,15 @@ from PyQt5.QtCore import *
 import numpy as np
 from VideoThread import VideoThread
 
-
-# consts
+# adjustable by user
 VIDEO_PATH = "nesquick.mp4"
+DEFAULT_ROI = [10, 440]
+DEFAULT_ANGLE = 23
+# constant
 MAIN_FONT = "Helvetica [Cronyx]"
 FONT_SIZE = 18
 NAME_LIST = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
              'Haus Halt', 'Purina', 'Nesquick', 'Dilmah']
-DEFAULT_ROI = [10, 440]
 
 
 class App(QWidget):
@@ -80,14 +81,24 @@ class App(QWidget):
         self.angle_input_label = QLabel("Angle:")
         self.angle_input_layout.addWidget(self.angle_input_label)
         self.angle_input = QLineEdit()
+        self.ROI_y1.setPlaceholderText("Degrees")
+        self.angle_input.setText(str(DEFAULT_ANGLE))
         self.angle_input.setValidator(QIntValidator())
         self.angle_input.setMaxLength(4)
+        self.angle_input.textEdited.connect(self.changeAngle)
         self.angle_input_layout.addWidget(self.angle_input)
 
     def changeROI(self):
         if self.ROI_x1.text() and self.ROI_x1.text():  # if both fields have values set
             new_ROI = [int(self.ROI_x1.text()), int(self.ROI_y1.text())]
             self.video_thread.updateROI(new_ROI)
+
+    def changeAngle(self):
+        try:
+            new_angle = int(self.angle_input.text())
+            self.video_thread.updateAngle(new_angle)
+        except ValueError:
+            print("Wrong angle")
 
     def __init__(self):
         super().__init__()
@@ -102,9 +113,9 @@ class App(QWidget):
         right_vbox = QVBoxLayout()
         right_layout_parent.setLayout(right_vbox)
         right_layout_parent.setMaximumWidth(400)
-        right_vbox.addWidget(self.item_list)
         right_vbox.addWidget(self.ROI_input_widget)
         right_vbox.addWidget(self.angle_input_widget)
+        right_vbox.addWidget(self.item_list)
         right_vbox.addWidget(self.clear_button)
         main_hbox = QHBoxLayout()
         main_hbox.addStretch(1)
@@ -114,7 +125,8 @@ class App(QWidget):
         main_hbox.addStretch(1)
         self.setLayout(main_hbox)
         # create the video capture thread
-        self.video_thread = VideoThread(VIDEO_PATH, NAME_LIST, DEFAULT_ROI)
+        self.video_thread = VideoThread(
+            VIDEO_PATH, NAME_LIST, DEFAULT_ROI, DEFAULT_ANGLE)
         self.video_thread.change_pixmap_signal.connect(self.update_image)
         self.video_thread.start()
 

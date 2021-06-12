@@ -10,22 +10,21 @@ import cv2
 
 
 # model init
-
 live_model = LiveYolo()
 live_model.load()
-
 ROI_OFFSET = (1250, 700)
 
 
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray, np.ndarray, np.ndarray)
 
-    def __init__(self, VIDEO_PATH, NAME_LIST, DEFAULT_ROI):
+    def __init__(self, VIDEO_PATH, NAME_LIST, DEFAULT_ROI, DEFAULT_ANGLE):
         super().__init__()
         self._run_flag = True
         self.VIDEO_PATH = VIDEO_PATH
         self.NAME_LIST = NAME_LIST
         self.updateROI(DEFAULT_ROI)
+        self.IMG_ANGLE = DEFAULT_ANGLE
 
     def updateROI(self, new_ROI):
         self.ROI = ((new_ROI[0], new_ROI[1]),
@@ -58,12 +57,16 @@ class VideoThread(QThread):
         cv_img = cv2.rectangle(
             cv_img, tuple(self.ROI[0]), tuple(self.ROI[1]), color, thickness)
 
-    def rotate_image(image, angle):
+    def rotatedImage(self, image):
         image_center = tuple(np.array(image.shape[1::-1]) / 2)
-        rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
-        result = cv2.warpAffine(
+        rot_mat = cv2.getRotationMatrix2D(
+            image_center, self.IMG_ANGLE, 1.0)
+        image = cv2.warpAffine(
             image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
-        return result
+        return image
+
+    def updateAngle(self, new_angle):
+        self.IMG_ANGLE = new_angle
 
     def run(self):
         cap = cv2.VideoCapture(self.VIDEO_PATH)
@@ -79,6 +82,7 @@ class VideoThread(QThread):
             if ret:
                 with torch.no_grad():
                     if self.pred is not None:
+                        self.cv_img = self.rotatedImage(self.cv_img)
                         self.drawBoxes(self.cv_img, self.pred)
                         self.drawROI(self.cv_img)
                         indexes = np.asarray(self.pred[0][:, -1])
