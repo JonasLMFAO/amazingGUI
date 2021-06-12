@@ -27,8 +27,6 @@ class App(QWidget):
         self.image_parent.installEventFilter(self)
         self.image_parent.setSizePolicy(
             QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.image_parent.setStyleSheet(
-            "QLabel { background-color : black; padding: 5px; }")
         self.image_layout = QVBoxLayout()
         self.image_parent.setLayout(self.image_layout)
         self.image_label = QLabel()
