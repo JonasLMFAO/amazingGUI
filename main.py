@@ -130,15 +130,19 @@ class App(QWidget):
         self.video_thread.change_pixmap_signal.connect(self.update_image)
         self.video_thread.start()
 
+    def scaleAndApplyPixmap(self, pixmap):
+        scaled_pixmap = pixmap.scaled(
+            self.image_parent.width(), self.image_parent.height(),
+            Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.image_label.setPixmap(scaled_pixmap)
+        self.image_label.setFixedSize(
+            scaled_pixmap.rect().width(), scaled_pixmap.rect().height())
+
     def eventFilter(self, widget, event):
         if (event.type() == QEvent.Resize and
                 widget is self.image_parent):
-            scaled_pixmap = QtGui.QPixmap(self.image_label.pixmap()).scaled(
-                self.image_parent.width(), self.image_parent.height(),
-                Qt.KeepAspectRatio)
-            self.image_label.setPixmap(scaled_pixmap)
-            self.image_label.setFixedSize(
-                scaled_pixmap.rect().width(), scaled_pixmap.rect().height())
+            pixmap = QtGui.QPixmap(self.image_label.pixmap())
+            self.scaleAndApplyPixmap(pixmap)
             return True
         return QMainWindow.eventFilter(self, widget, event)
 
@@ -148,7 +152,7 @@ class App(QWidget):
         print("x,y:", x, y)
 
     def closeEvent(self, event):
-        self.thread.stop()
+        self.video_thread.stop()
         event.accept()
 
     def clearList(self):
@@ -159,12 +163,8 @@ class App(QWidget):
     def update_image(self, cv_img, indexes, probs):
         # update pixmap
         qt_img = self.convert_cv_qt(cv_img)
-        scaled_pixmap = QtGui.QPixmap(qt_img).scaled(
-            self.image_parent.width(), self.image_parent.height(),
-            Qt.KeepAspectRatio)
-        self.image_label.setPixmap(scaled_pixmap)
-        self.image_label.setFixedSize(
-            scaled_pixmap.rect().width(), scaled_pixmap.rect().height())
+        pixmap = QtGui.QPixmap(qt_img)
+        self.scaleAndApplyPixmap(pixmap)
         # update item list
         for i in indexes:
             i = int(i)
