@@ -84,10 +84,10 @@ class VideoThread(QThread):
         self.model_thread.start()
         while self._run_flag:
             ret, cv_img = cap.read()
-            cv_img = self.rotatedImage(cv_img)
-            self.drawROI(cv_img)
-            self.cv_img = cv_img
             if ret:
+                cv_img = self.rotatedImage(cv_img)
+                self.drawROI(cv_img)
+                self.cv_img = cv_img
                 with torch.no_grad():
                     if self.pred is not None:
                         # here we use thread lock because self.pred is on an another thread
