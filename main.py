@@ -79,7 +79,7 @@ class App(QWidget):
         self.angle_input_label = QLabel("Angle:")
         self.angle_input_layout.addWidget(self.angle_input_label)
         self.angle_input = QLineEdit()
-        self.ROI_y1.setPlaceholderText("Degrees")
+        self.angle_input.setPlaceholderText("Degrees")
         self.angle_input.setText(str(DEFAULT_ANGLE))
         self.angle_input.setValidator(QIntValidator())
         self.angle_input.setMaxLength(4)
@@ -87,16 +87,26 @@ class App(QWidget):
         self.angle_input_layout.addWidget(self.angle_input)
 
     def changeROI(self):
-        if self.ROI_x1.text() and self.ROI_x1.text():  # if both fields have values set
-            new_ROI = [int(self.ROI_x1.text()), int(self.ROI_y1.text())]
-            self.video_thread.updateROI(new_ROI)
+        try:
+            ROI_x1 = int(self.ROI_x1.text())
+        except ValueError:
+            ROI_x1 = 0
+        try:
+            ROI_y1 = int(self.ROI_y1.text())
+        except ValueError:
+            ROI_y1 = 0
+        new_ROI = [ROI_x1, ROI_y1]
+        self.video_thread.updateROI(new_ROI)
 
     def changeAngle(self):
+        # to catch error caused by
+        # 1) empty field 2) a single '-' in the field
         try:
             new_angle = int(self.angle_input.text())
-            self.video_thread.updateAngle(new_angle)
         except ValueError:
-            print("Wrong angle")
+            # assume that the angle==0
+            new_angle = 0
+        self.video_thread.updateAngle(new_angle)
 
     def __init__(self):
         super().__init__()

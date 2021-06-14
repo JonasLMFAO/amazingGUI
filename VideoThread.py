@@ -45,11 +45,11 @@ class VideoThread(QThread):
                                      color=colors(c, True), line_thickness=3)
 
     def updatePredictionLoop(self):
-        while True:
+        while self._run_flag:
             if self.cv_img is not None:
-                cropped = self.cv_img[self.ROI[0][1]:self.ROI[1]
+                cut_out_ROI = self.cv_img[self.ROI[0][1]:self.ROI[1]
                                       [1], self.ROI[0][0]:self.ROI[1][0]]
-                self.pred = live_model.run_on_single_frame(cropped)
+                self.pred = live_model.run_on_single_frame(cut_out_ROI)
 
     def drawROI(self, cv_img):
         color = (0, 255, 0)
@@ -75,16 +75,17 @@ class VideoThread(QThread):
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1536)
         self.cv_img = None
         self.pred = None
-        thread = Thread(target=self.updatePredictionLoop)
-        thread.start()
+        self.model_thread = Thread(target=self.updatePredictionLoop)
+        self.model_thread.start()
         while self._run_flag:
-            ret, self.cv_img = cap.read()
+            ret, cv_img = cap.read()
+            cv_img = self.rotatedImage(cv_img)
+            self.drawROI(cv_img)
+            self.cv_img = cv_img
             if ret:
                 with torch.no_grad():
                     if self.pred is not None:
-                        self.cv_img = self.rotatedImage(self.cv_img)
-                        self.drawBoxes(self.cv_img, self.pred)
-                        self.drawROI(self.cv_img)
+                        self.drawBoxes(cv_img, self.pred)
                         indexes = np.asarray(self.pred[0][:, -1])
                         probs = np.asarray(self.pred[0][:, -2])
                         self.change_pixmap_signal.emit(
@@ -95,4 +96,5 @@ class VideoThread(QThread):
     def stop(self):
         """Sets run flag to False and waits for thread to finish"""
         self._run_flag = False
+        self.model_thread.join()
         self.wait()
