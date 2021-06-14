@@ -1,4 +1,5 @@
-from os import stat
+# it may be worth trying multiprocessing
+# if the model is much slower with the GUI
 from threading import Thread, Lock
 from time import sleep
 import numpy as np
@@ -106,3 +107,12 @@ class VideoThread(QThread):
         self._run_flag = False
         self.model_thread.join()
         self.wait()
+
+
+if __name__ == "__main__":
+    cam = cv2.VideoCapture("nesquick.mp4")
+    cam.read()  # in case if the first frame is blank
+    for i in range(15):
+        _, cv_img = cam.read()
+        live_model.run_on_single_frame(
+            cv_img[0:ROI_OFFSET[0], 0:ROI_OFFSET[1]])
