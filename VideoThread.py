@@ -13,7 +13,7 @@ import cv2
 # model init
 live_model = LiveYolo()
 live_model.load()
-ROI_OFFSET = (1250, 700)
+ROI_OFFSET = (1250, 900)
 
 
 class VideoThread(QThread):
