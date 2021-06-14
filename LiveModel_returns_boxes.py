@@ -84,10 +84,7 @@ class LiveYolo():
                     #p = plot_one_box(xyxy, frame, label=label, color=colors(c, True), line_thickness=2)
 
 
-        #print('pred', pred)
-        coords = pred[0][:-3]
-        classes = pred[0][:,-1]
-        probs = pred[0][:,-2]
+        pred = [item.cpu() for item in pred]
         return pred #coords, classes, probs
 
 
