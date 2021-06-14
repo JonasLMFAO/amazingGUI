@@ -22,7 +22,7 @@ NAME_LIST = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
 class App(QWidget):
     def createImageWidget(self):
         self.image_parent = QWidget()
-        self.image_parent.setMinimumWidth(600)
+        self.image_parent.setMinimumWidth(700)
         self.image_parent.setMinimumHeight(600)
         self.image_parent.installEventFilter(self)
         self.image_parent.setSizePolicy(

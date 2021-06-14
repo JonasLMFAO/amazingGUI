@@ -1,5 +1,5 @@
 from os import stat
-from threading import Thread
+from threading import Thread, Lock
 from time import sleep
 import numpy as np
 from PyQt5.QtCore import pyqtSignal, QThread
@@ -47,8 +47,11 @@ class VideoThread(QThread):
     def updatePredictionLoop(self):
         while self._run_flag:
             if self.cv_img is not None:
-                cut_out_ROI = self.cv_img[self.ROI[0][1]:self.ROI[1]
-                                      [1], self.ROI[0][0]:self.ROI[1][0]]
+                # protect self.cv_img from being changed on an another thread
+                self.threading_lock.acquire()
+                cut_out_ROI = np.copy(self.cv_img[self.ROI[0][1]:self.ROI[1]
+                                                  [1], self.ROI[0][0]:self.ROI[1][0]])
+                self.threading_lock.release()
                 self.pred = live_model.run_on_single_frame(cut_out_ROI)
 
     def drawROI(self, cv_img):
@@ -75,6 +78,7 @@ class VideoThread(QThread):
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1536)
         self.cv_img = None
         self.pred = None
+        self.threading_lock = Lock()
         self.model_thread = Thread(target=self.updatePredictionLoop)
         self.model_thread.start()
         while self._run_flag:
@@ -85,11 +89,15 @@ class VideoThread(QThread):
             if ret:
                 with torch.no_grad():
                     if self.pred is not None:
+                        # here we use thread lock because self.pred is on an another thread
+                        self.threading_lock.acquire()
                         self.drawBoxes(cv_img, self.pred)
                         indexes = np.asarray(self.pred[0][:, -1])
                         probs = np.asarray(self.pred[0][:, -2])
+                        self.threading_lock.release()
                         self.change_pixmap_signal.emit(
-                            self.cv_img, indexes, probs)
+                            cv_img, indexes, probs)
+
             sleep(0.08)
         cap.release()
 
