@@ -21,19 +21,14 @@ NAME_LIST = ['Tartan', 'Vileda', 'Lacalut', 'Ecodenta',
 
 class App(QWidget):
     def createImageWidget(self):
-        self.image_parent = QWidget()
-        self.image_parent.setMinimumWidth(700)
-        self.image_parent.setMinimumHeight(600)
-        self.image_parent.installEventFilter(self)
-        self.image_parent.setSizePolicy(
-            QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.image_layout = QVBoxLayout()
-        self.image_parent.setLayout(self.image_layout)
-        self.image_label = QLabel()
-        self.image_layout.addWidget(
-            self.image_label)
+        self.image_label = QLabel(self)
+        self.image_label.setMinimumWidth(600)
+        self.image_label.setMinimumHeight(600)
+        self.image_label.installEventFilter(self)
         self.image_label.setStyleSheet(
-            "QLabel { background-color : red;}")
+            "QLabel { background-color : white; padding: 5px; }")
+        # self.image_label.setSizePolicy(
+        #     QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.image_label.mousePressEvent = self.getPos
 
     def createItemListAndInputWidgets(self):
@@ -128,7 +123,7 @@ class App(QWidget):
         main_hbox = QHBoxLayout()
         main_hbox.addStretch(1)
         main_hbox.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        main_hbox.addWidget(self.image_parent)
+        main_hbox.addWidget(self.image_label)
         main_hbox.addWidget(right_layout_parent, 1)
         main_hbox.addStretch(1)
         self.setLayout(main_hbox)
@@ -138,19 +133,12 @@ class App(QWidget):
         self.video_thread.change_pixmap_signal.connect(self.update_image)
         self.video_thread.start()
 
-    def scaleAndApplyPixmap(self, pixmap):
-        scaled_pixmap = pixmap.scaled(
-            self.image_parent.width(), self.image_parent.height(),
-            Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.image_label.setPixmap(scaled_pixmap)
-        self.image_label.setFixedSize(
-            scaled_pixmap.rect().width(), scaled_pixmap.rect().height())
-
     def eventFilter(self, widget, event):
         if (event.type() == QEvent.Resize and
-                widget is self.image_parent):
-            pixmap = QtGui.QPixmap(self.image_label.pixmap())
-            self.scaleAndApplyPixmap(pixmap)
+                widget is self.image_label):
+            self.image_label.setPixmap(QtGui.QPixmap(self.image_label.pixmap()).scaled(
+                self.image_label.width(), self.image_label.height(),
+                Qt.KeepAspectRatio))
             return True
         return QMainWindow.eventFilter(self, widget, event)
 
@@ -171,8 +159,9 @@ class App(QWidget):
     def update_image(self, cv_img, indexes, probs):
         # update pixmap
         qt_img = self.convert_cv_qt(cv_img)
-        pixmap = QtGui.QPixmap(qt_img)
-        self.scaleAndApplyPixmap(pixmap)
+        self.image_label.setPixmap(qt_img.scaled(
+            self.image_label.width(), self.image_label.height(),
+            Qt.KeepAspectRatio))
         # update item list
         for i in indexes:
             i = int(i)
